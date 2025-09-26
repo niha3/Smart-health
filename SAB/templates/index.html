@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Appointment Booking</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .form-step { display: none; }
+        .form-step.active { display: block; }
+        .service-card, .time-slot { cursor: pointer; transition: all 0.3s; }
+        .service-card.selected, .time-slot.selected { 
+            background: #6366f1 !important; 
+            color: white !important;
+            border-color: #6366f1 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <div class="text-center text-white mb-4">
+            <h1 class="display-4 fw-bold"><i class="fas fa-calendar-check"></i> Smart Booking</h1>
+            <p class="lead">Schedule your appointment in just a few clicks</p>
+        </div>
+
+        <div class="card shadow-lg border-0 rounded-4">
+            <div class="card-header bg-primary text-white text-center py-4">
+                <h2 class="mb-0">Book Your Appointment</h2>
+            </div>
+            <div class="card-body p-4">
+                <!-- Progress Steps -->
+                <div class="row text-center mb-4">
+                    <div class="col">
+                        <div class="step-circle bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" id="step1-circle">1</div>
+                        <p class="small mt-2 fw-semibold" id="step1-label">Service</p>
+                    </div>
+                    <div class="col">
+                        <div class="step-circle bg-secondary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" id="step2-circle">2</div>
+                        <p class="small mt-2 text-muted" id="step2-label">Date & Time</p>
+                    </div>
+                    <div class="col">
+                        <div class="step-circle bg-secondary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" id="step3-circle">3</div>
+                        <p class="small mt-2 text-muted" id="step3-label">Details</p>
+                    </div>
+                    <div class="col">
+                        <div class="step-circle bg-secondary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" id="step4-circle">4</div>
+                        <p class="small mt-2 text-muted" id="step4-label">Confirm</p>
+                    </div>
+                </div>
+
+                <!-- Step 1: Select Service -->
+                <div class="form-step active" id="step1">
+                    <h4 class="mb-4">Select a Service</h4>
+                    <div id="servicesList"></div>
+                    <div class="d-flex justify-content-end mt-4">
+                        <button class="btn btn-primary btn-lg" id="nextToStep2" disabled>Next <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Select Date & Time -->
+                <div class="form-step" id="step2">
+                    <h4 class="mb-4">Choose Date & Time</h4>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Select Date</label>
+                            <input type="date" class="form-control form-control-lg" id="appointmentDate">
+                        </div>
+                    </div>
+                    <div id="timeSlotsContainer" class="mt-3"></div>
+                    <div class="d-flex justify-content-between mt-4">
+                        <button class="btn btn-outline-secondary btn-lg" id="backToStep1"><i class="fas fa-arrow-left"></i> Back</button>
+                        <button class="btn btn-primary btn-lg" id="nextToStep3" disabled>Next <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Personal Details -->
+                <div class="form-step" id="step3">
+                    <h4 class="mb-4">Your Information</h4>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Full Name *</label>
+                            <input type="text" class="form-control form-control-lg" id="userName" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Email *</label>
+                            <input type="email" class="form-control form-control-lg" id="userEmail" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Phone *</label>
+                            <input type="tel" class="form-control form-control-lg" id="userPhone" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Additional Notes</label>
+                            <textarea class="form-control" id="userNotes" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-4">
+                        <button class="btn btn-outline-secondary btn-lg" id="backToStep2"><i class="fas fa-arrow-left"></i> Back</button>
+                        <button class="btn btn-primary btn-lg" id="nextToStep4">Review <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <!-- Step 4: Confirmation -->
+                <div class="form-step" id="step4">
+                    <h4 class="mb-4">Review Your Appointment</h4>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> Please review your appointment details before confirming.
+                    </div>
+                    <div id="summaryContent" class="bg-light p-4 rounded"></div>
+                    <div class="d-flex justify-content-between mt-4">
+                        <button class="btn btn-outline-secondary btn-lg" id="backToStep3"><i class="fas fa-arrow-left"></i> Back</button>
+                        <button class="btn btn-success btn-lg" id="confirmBooking"><i class="fas fa-check"></i> Confirm Booking</button>
+                    </div>
+                </div>
+
+                <!-- Success Message -->
+                <div class="form-step" id="successStep">
+                    <div class="text-center py-5">
+                        <i class="fas fa-check-circle text-success" style="font-size: 5rem;"></i>
+                        <h3 class="mt-4 mb-3">Appointment Confirmed!</h3>
+                        <p class="lead">Your appointment has been successfully booked.</p>
+                        <div class="alert alert-success mt-4" id="confirmationDetails"></div>
+                        <button class="btn btn-primary btn-lg mt-3" onclick="location.reload()">Book Another Appointment</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    let selectedService = null;
+    let selectedDate = null;
+    let selectedTime = null;
+    let services = [];
+
+    $(document).ready(function() {
+        // Set minimum date to today
+        const today = new Date().toISOString().split('T')[0];
+        $('#appointmentDate').attr('min', today);
+        
+        loadServices();
+        setupEventListeners();
+    });
+
+    function loadServices() {
+        $.get('/api/services', function(data) {
+            services = data;
+            displayServices(data);
+        });
+    }
+
+    function displayServices(services) {
+        const html = services.map(service => `
+            <div class="card service-card border-2 mb-3" data-id="${service.id}">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <i class="fas fa-briefcase-medical text-primary" style="font-size: 2rem;"></i>
+                        </div>
+                        <div class="col">
+                            <h5 class="mb-1">${service.name}</h5>
+                            <small class="text-muted">
+                                <i class="fas fa-clock"></i> ${service.duration} min | 
+                                <i class="fas fa-dollar-sign"></i> $${service.price}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        $('#servicesList').html(html);
+    }
+
+    function setupEventListeners() {
+        // Service selection
+        $(document).on('click', '.service-card', function() {
+            $('.service-card').removeClass('selected');
+            $(this).addClass('selected');
+            selectedService = services.find(s => s.id == $(this).data('id'));
+            console.log('Selected Service:', selectedService);
+            $('#nextToStep2').prop('disabled', false);
+        });
+
+        // Step navigation
+        $('#nextToStep2').click(() => goToStep(2));
+        $('#backToStep1').click(() => goToStep(1));
+        $('#nextToStep3').click(() => goToStep(3));
+        $('#backToStep2').click(() => goToStep(2));
+        $('#nextToStep4').click(() => goToStep(4));
+        $('#backToStep3').click(() => goToStep(3));
+
+        // Date selection
+        $('#appointmentDate').change(function() {
+            selectedDate = $(this).val();
+            console.log('Selected Date:', selectedDate);
+            if (selectedDate) loadTimeSlots();
+        });
+
+        // Time slot selection (delegated because slots are dynamically generated)
+        $(document).on('click', '.time-slot', function() {
+            $('.time-slot').removeClass('selected');
+            $(this).addClass('selected');
+            selectedTime = $(this).data('time');
+            console.log('Selected Time:', selectedTime);
+            $('#nextToStep3').prop('disabled', false);
+        });
+
+        // Confirm booking
+        $('#confirmBooking').click(bookAppointment);
+    }
+
+    function goToStep(step) {
+        $('.form-step').removeClass('active');
+        $(`#step${step}`).addClass('active');
+        
+        for (let i = 1; i <= 4; i++) {
+            if (i < step) {
+                $(`#step${i}-circle`).removeClass('bg-secondary bg-primary').addClass('bg-success');
+                $(`#step${i}-label`).removeClass('text-muted').addClass('text-success');
+            } else if (i === step) {
+                $(`#step${i}-circle`).removeClass('bg-secondary bg-success').addClass('bg-primary');
+                $(`#step${i}-label`).removeClass('text-muted text-success').addClass('fw-semibold text-primary');
+            } else {
+                $(`#step${i}-circle`).removeClass('bg-primary bg-success').addClass('bg-secondary');
+                $(`#step${i}-label`).removeClass('fw-semibold text-primary text-success').addClass('text-muted');
+            }
+        }
+
+        if (step === 4) showSummary();
+    }
+
+    function loadTimeSlots() {
+        $.ajax({
+            url: '/api/available-slots',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                date: selectedDate,
+                service_id: selectedService.id
+            }),
+            success: function(slots) {
+                if (slots.length === 0) {
+                    $('#timeSlotsContainer').html('<div class="alert alert-warning">No available slots for this date.</div>');
+                } else {
+                    const html = '<label class="form-label fw-semibold">Select Time</label><div class="row g-2">' + 
+                        slots.map(slot => `
+                            <div class="col-6 col-md-3">
+                                <div class="time-slot card text-center p-2 border-2" data-time="${slot}">
+                                    <i class="fas fa-clock"></i> ${slot}
+                                </div>
+                            </div>
+                        `).join('') + '</div>';
+                    $('#timeSlotsContainer').html(html);
+                }
+            }
+        });
+    }
+
+    function showSummary() {
+        const html = `
+            <div class="row g-3">
+                <div class="col-md-6"><strong>Service:</strong></div>
+                <div class="col-md-6">${selectedService.name}</div>
+                <div class="col-md-6"><strong>Date:</strong></div>
+                <div class="col-md-6"><i class="fas fa-calendar"></i> ${selectedDate}</div>
+                <div class="col-md-6"><strong>Time:</strong></div>
+                <div class="col-md-6"><i class="fas fa-clock"></i> ${selectedTime}</div>
+                <div class="col-md-6"><strong>Duration:</strong></div>
+                <div class="col-md-6">${selectedService.duration} minutes</div>
+                <div class="col-md-6"><strong>Price:</strong></div>
+                <div class="col-md-6 text-success fw-bold">$${selectedService.price}</div>
+                <div class="col-md-6"><strong>Name:</strong></div>
+                <div class="col-md-6">${$('#userName').val()}</div>
+                <div class="col-md-6"><strong>Email:</strong></div>
+                <div class="col-md-6">${$('#userEmail').val()}</div>
+                <div class="col-md-6"><strong>Phone:</strong></div>
+                <div class="col-md-6">${$('#userPhone').val()}</div>
+            </div>
+        `;
+        $('#summaryContent').html(html);
+    }
+
+    function bookAppointment() {
+        const data = {
+            name: $('#userName').val(),
+            email: $('#userEmail').val(),
+            phone: $('#userPhone').val(),
+            service_id: selectedService?.id,
+            date: selectedDate,
+            time: selectedTime,
+            notes: $('#userNotes').val()
+        };
+
+        console.log('Booking Data:', data);
+
+        if (!data.service_id || !data.date || !data.time) {
+            alert('Please select a service, date, and time before confirming.');
+            return;
+        }
+
+        $.ajax({
+            url: '/api/book',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            success: function(response) {
+                console.log('Booking Response:', response);
+                $('#confirmationDetails').html(`
+                    <strong>Appointment ID:</strong> #${response.appointment_id}<br>
+                    <strong>Service:</strong> ${selectedService.name}<br>
+                    <strong>Date & Time:</strong> ${selectedDate} at ${selectedTime}
+                `);
+                $('.form-step').removeClass('active');
+                $('#successStep').addClass('active');
+            },
+            error: function(xhr) {
+                alert('Error booking appointment: ' + xhr.responseText);
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
