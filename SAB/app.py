@@ -152,22 +152,19 @@ def cancel_appointment(appointment_id):
     return jsonify({"success": False, "message": "Appointment not found"}), 404
 
 
-# -------------------------------
 # Error handlers
-# -------------------------------
+
+@app.errorhandler(500)
+def error_message(error):
+    return jsonify({"error": "Internal server error. Please Try Again"}), 500
 @app.errorhandler(404)
 def not_found(error):
     return jsonify({"error": "Endpoint not found"}), 404
 
 
-@app.errorhandler(500)
-def internal_error(error):
-    return jsonify({"error": "Internal server error"}), 500
 
 
-# -------------------------------
 # Run server
-# -------------------------------
 if __name__ == '__main__':
     print("="*50)
     print("🚀 Smart Appointment Booking System")
