@@ -1,0 +1,15 @@
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+}
+.form-step { display: none; }
+.form-step.active { display: block; }
+.service-card, .time-slot { 
+    cursor: pointer; 
+    transition: all 0.3s; 
+}
+.service-card.selected, .time-slot.selected { 
+    background: #6366f1 !important; 
+    color: white !important;
+    border-color: #6366f1 !important;
+}
