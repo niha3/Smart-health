@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Appointments | Smart Appointment Booking</title>
+
+  <!-- Bootstrap & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    body {
+      background: #f8f9fa;
+      font-family: 'Poppins', sans-serif;
+    }
+    .navbar {
+      background: linear-gradient(90deg, #667eea, #764ba2);
+    }
+    .card {
+      border-radius: 1rem;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    }
+    .table thead {
+      background-color: #667eea;
+      color: white;
+    }
+    .table tbody tr:hover {
+      background-color: #f2f2f2;
+    }
+    .btn-cancel {
+      background-color: #e53e3e;
+      color: white;
+      border-radius: 0.5rem;
+    }
+    .btn-cancel:hover {
+      background-color: #c53030;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="{{ url_for('index') }}">Smart Appointment Booking</a>
+      <div class="d-flex">
+        <span class="text-white me-3">Welcome, <strong>{{ user }}</strong></span>
+        <a href="{{ url_for('logout') }}" class="btn btn-outline-light btn-sm">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Content -->
+  <div class="container mt-5">
+    <div class="card p-4">
+      <h3 class="text-center mb-4 text-primary">
+        <i class="fa-solid fa-calendar-check"></i> My Appointments
+      </h3>
+
+      {% if appointments and appointments|length > 0 %}
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Service</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for appointment in appointments %}
+                <tr>
+                  <td>{{ loop.index }}</td>
+                  <td>{{ appointment.date }}</td>
+                  <td>{{ appointment.time }}</td>
+                  <td>{{ appointment.service }}</td>
+                  <td>
+                    {% if appointment.status == 'Confirmed' %}
+                      <span class="badge bg-success">Confirmed</span>
+                    {% elif appointment.status == 'Pending' %}
+                      <span class="badge bg-warning text-dark">Pending</span>
+                    {% else %}
+                      <span class="badge bg-secondary">Cancelled</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <form method="POST" action="{{ url_for('cancel_appointment', id=appointment.id) }}">
+                      <button type="submit" class="btn btn-cancel btn-sm">
+                        <i class="fa-solid fa-xmark"></i> Cancel
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="text-center text-muted mt-3">You don’t have any appointments yet.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Flash messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="container mt-4">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
