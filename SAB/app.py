@@ -157,9 +157,7 @@ def cancel_appointment(appointment_id):
 @app.errorhandler(500)
 def error_message(error):
     return jsonify({"error": "Internal server error. Please Try Again"}), 500
-@app.errorhandler(404)
-def not_found(error):
-    return jsonify({"error": "Endpoint not found"}), 404
+
 
 
 
