@@ -122,11 +122,8 @@ Open a pull request 🚀
 
 🧑‍💻 Author
 
-Your Name
-📧 your.email@example.com
-
-💼 LinkedIn
- • GitHub
+Alapati Naga Sree Vaishnavi Neha 
+📧 nehaalapati2005@gmail.com
 
 📝 License
 
