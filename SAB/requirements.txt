@@ -1,0 +1,20 @@
+# Flask framework
+Flask==3.0.3
+
+# For handling CORS (if your frontend and backend are separate)
+Flask-Cors==4.0.0
+
+# For environment variable management (optional but recommended)
+python-dotenv==1.0.1
+
+# For making API requests (if you plan to call external APIs)
+requests==2.32.3
+
+# For working with JSON data and data structures
+simplejson==3.19.2
+
+# For date and time utilities (optional)
+python-dateutil==2.9.0.post0
+
+# For serving production-ready apps (optional, for deployment)
+gunicorn==23.0.0
